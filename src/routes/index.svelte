@@ -9,7 +9,7 @@
 		const myId = location.hash === '#initiator'?'1':'2'
 		const partnerId = location.hash === '#initiator'?'2':'1'
 		peer = new Peer(myId, {
-      host: 'peer-server-production.up.railway.app',
+      host: 'h2949981.stratoserver.net',
       port: 9001,
       path: '/myapp'
     });;
