@@ -1,59 +1,55 @@
 <script context="module" lang="ts">
-	export const prerender = true;
 </script>
 
 <script lang="ts">
-	import Counter from '$lib/Counter.svelte';
+	import { onMount } from 'svelte/internal';
+
+	let peer, conn
+	onMount(async () => {
+		const myId = location.hash === '#initiator'?'1':'2'
+		const partnerId = location.hash === '#initiator'?'2':'1'
+		peer = new Peer(myId, {
+      host: 'peer-server-production.up.railway.app',
+      port: 9001,
+      path: '/myapp'
+    });;
+		conn = peer.connect(partnerId);
+		conn.on('open', () => {
+			conn.send('hi');
+		});
+
+    peer.on('connection', function(conn) {
+      conn.on('data', function(data){
+        console.log(data);
+      });
+    });
+  });
+
+	const startStreaming = async () => {
+		const stream = await navigator.mediaDevices.getUserMedia({
+			video: true,
+			audio: true
+		});
+		peer.addStream(stream);
+	};
+  const sendHi =()=>{conn.send('hihihihiihihi')} 
 </script>
 
 <svelte:head>
 	<title>Home</title>
+	<script src="https://unpkg.com/peerjs@1.4.5/dist/peerjs.min.js"></script>
 </svelte:head>
 
-<section>
-	<h1>
-		<div class="welcome">
-			<picture>
-				<source srcset="svelte-welcome.webp" type="image/webp" />
-				<img src="svelte-welcome.png" alt="Welcome" />
-			</picture>
-		</div>
+<div class="p-4">
+  <button on:click={startStreaming}  class="btn btn-primary">
+    Start Streaming
+  </button>
 
-		to your new<br />SvelteKit app
-	</h1>
-
-	<h2>
-		try editing <strong>src/routes/index.svelte</strong>
-	</h2>
-
-	<Counter />
-</section>
+  <button on:click={sendHi} class="btn btn-secondary">
+    Send 'Hi'
+  </button>
+	<video />
+</div>
 
 <style>
-	section {
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		align-items: center;
-		flex: 1;
-	}
-
-	h1 {
-		width: 100%;
-	}
-
-	.welcome {
-		position: relative;
-		width: 100%;
-		height: 0;
-		padding: 0 0 calc(100% * 495 / 2048) 0;
-	}
-
-	.welcome img {
-		position: absolute;
-		width: 100%;
-		height: 100%;
-		top: 0;
-		display: block;
-	}
 </style>
